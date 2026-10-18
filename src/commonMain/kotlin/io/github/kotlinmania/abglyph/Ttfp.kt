@@ -9,8 +9,8 @@ import io.github.kotlinmania.abglyph.ttfp.OutlineCurveBuilder
  */
 class FontRef private constructor(
     private val face: Face,
-) : Font, VariableFont {
-
+) : Font,
+    VariableFont {
     companion object {
         /**
          * Creates a FontRef from byte data.
@@ -57,10 +57,11 @@ class FontRef private constructor(
             return null
         }
         val curves = outliner.takeOutline()
-        val bounds = Rect(
-            min = point(rect.min.x, rect.max.y),
-            max = point(rect.max.x, rect.min.y),
-        )
+        val bounds =
+            Rect(
+                min = point(rect.min.x, rect.max.y),
+                max = point(rect.max.x, rect.min.y),
+            )
         return Outline(bounds, curves)
     }
 
@@ -83,8 +84,8 @@ class FontRef private constructor(
  */
 class FontVec private constructor(
     private val face: Face,
-) : Font, VariableFont {
-
+) : Font,
+    VariableFont {
     companion object {
         /**
          * Creates a FontVec from owned data.
@@ -135,10 +136,11 @@ class FontVec private constructor(
             return null
         }
         val curves = outliner.takeOutline()
-        val bounds = Rect(
-            min = point(rect.min.x, rect.max.y),
-            max = point(rect.max.x, rect.min.y),
-        )
+        val bounds =
+            Rect(
+                min = point(rect.min.x, rect.max.y),
+                max = point(rect.max.x, rect.min.y),
+            )
         return Outline(bounds, curves)
     }
 

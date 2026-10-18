@@ -125,12 +125,14 @@ interface Font {
      * Construct a PxScaleFont by associating with the given pixel scale.
      */
     fun asScaled(scale: PxScale): PxScaleFont<Font> = PxScaleFont(this, scale)
+
     fun asScaled(scale: Float): PxScaleFont<Font> = PxScaleFont(this, PxScale.from(scale))
 
     /**
      * Move into a PxScaleFont associated with the given pixel scale.
      */
     fun intoScaled(scale: PxScale): PxScaleFont<Font> = asScaled(scale)
+
     fun intoScaled(scale: Float): PxScaleFont<Font> = asScaled(scale)
 
     /**

@@ -4,7 +4,9 @@ package io.github.kotlinmania.abglyph
 /**
  * Glyph id.
  */
-data class GlyphId(val value: Int = 0) : Comparable<GlyphId> {
+data class GlyphId(
+    val value: Int = 0,
+) : Comparable<GlyphId> {
     constructor(u16Value: UShort) : this(u16Value.toInt())
 
     /**

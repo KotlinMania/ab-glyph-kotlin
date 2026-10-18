@@ -19,27 +19,32 @@ internal class CffParser(
     }
 
     private fun readUint8(pos: Int): Int = data[pos].toInt() and 0xFF
+
     private fun readUint16(pos: Int): Int =
         ((data[pos].toInt() and 0xFF) shl 8) or (data[pos + 1].toInt() and 0xFF)
+
     private fun readUint24(pos: Int): Int =
         ((data[pos].toInt() and 0xFF) shl 16) or
             ((data[pos + 1].toInt() and 0xFF) shl 8) or
             (data[pos + 2].toInt() and 0xFF)
+
     private fun readUint32(pos: Int): Int =
         ((data[pos].toInt() and 0xFF) shl 24) or
             ((data[pos + 1].toInt() and 0xFF) shl 16) or
             ((data[pos + 2].toInt() and 0xFF) shl 8) or
             (data[pos + 3].toInt() and 0xFF)
+
     private fun readInt16(pos: Int): Int =
         ((data[pos].toInt() shl 8) or (data[pos + 1].toInt() and 0xFF)).toShort().toInt()
 
-    private fun readOffset(pos: Int, offSize: Int): Int = when (offSize) {
-        1 -> readUint8(pos)
-        2 -> readUint16(pos)
-        3 -> readUint24(pos)
-        4 -> readUint32(pos)
-        else -> 0
-    }
+    private fun readOffset(pos: Int, offSize: Int): Int =
+        when (offSize) {
+            1 -> readUint8(pos)
+            2 -> readUint16(pos)
+            3 -> readUint24(pos)
+            4 -> readUint32(pos)
+            else -> 0
+        }
 
     private class IndexInfo(
         val count: Int,
@@ -106,23 +111,30 @@ internal class CffParser(
         while (dPos < dictEnd) {
             val b0 = readUint8(dPos++)
             when (b0) {
-                in 32..246 -> operands.add((b0 - 139).toFloat())
+                in 32..246 -> {
+                    operands.add((b0 - 139).toFloat())
+                }
+
                 in 247..250 -> {
                     val b1 = readUint8(dPos++)
                     operands.add(((b0 - 247) * 256 + b1 + 108).toFloat())
                 }
+
                 in 251..254 -> {
                     val b1 = readUint8(dPos++)
                     operands.add((-(b0 - 251) * 256 - b1 - 108).toFloat())
                 }
+
                 28 -> {
                     operands.add(readInt16(dPos).toFloat())
                     dPos += 2
                 }
+
                 29 -> {
                     operands.add(readUint32(dPos).toFloat())
                     dPos += 4
                 }
+
                 30 -> {
                     // Real number
                     var nibble: Int
@@ -138,6 +150,7 @@ internal class CffParser(
                     }
                     operands.add(sb.toString().toFloatOrNull() ?: 0.0f)
                 }
+
                 17 -> {
                     // CharStrings
                     if (operands.isNotEmpty()) {
@@ -145,6 +158,7 @@ internal class CffParser(
                     }
                     operands.clear()
                 }
+
                 18 -> {
                     // Private
                     if (operands.size >= 2) {
@@ -153,6 +167,7 @@ internal class CffParser(
                     }
                     operands.clear()
                 }
+
                 else -> {
                     operands.clear()
                 }
@@ -167,23 +182,30 @@ internal class CffParser(
             while (pPos < pEnd) {
                 val b0 = readUint8(pPos++)
                 when (b0) {
-                    in 32..246 -> pOperands.add((b0 - 139).toFloat())
+                    in 32..246 -> {
+                        pOperands.add((b0 - 139).toFloat())
+                    }
+
                     in 247..250 -> {
                         val b1 = readUint8(pPos++)
                         pOperands.add(((b0 - 247) * 256 + b1 + 108).toFloat())
                     }
+
                     in 251..254 -> {
                         val b1 = readUint8(pPos++)
                         pOperands.add((-(b0 - 251) * 256 - b1 - 108).toFloat())
                     }
+
                     28 -> {
                         pOperands.add(readInt16(pPos).toFloat())
                         pPos += 2
                     }
+
                     29 -> {
                         pOperands.add(readUint32(pPos).toFloat())
                         pPos += 4
                     }
+
                     19 -> {
                         // Subrs
                         if (pOperands.isNotEmpty()) {
@@ -191,7 +213,10 @@ internal class CffParser(
                         }
                         pOperands.clear()
                     }
-                    else -> pOperands.clear()
+
+                    else -> {
+                        pOperands.clear()
+                    }
                 }
             }
         }
@@ -250,11 +275,12 @@ internal class CffParser(
             return Rect(min = point(minX, minY), max = point(maxX, maxY))
         }
 
-        private fun getSubrBias(count: Int): Int = when {
-            count < 1240 -> 107
-            count < 33900 -> 1131
-            else -> 32768
-        }
+        private fun getSubrBias(count: Int): Int =
+            when {
+                count < 1240 -> 107
+                count < 33900 -> 1131
+                else -> 32768
+            }
 
         private fun runSubroutine(
             start: Int,
@@ -269,29 +295,37 @@ internal class CffParser(
             while (pos < end) {
                 val b0 = readUint8(pos++)
                 when (b0) {
-                    in 32..246 -> stack.add((b0 - 139).toFloat())
+                    in 32..246 -> {
+                        stack.add((b0 - 139).toFloat())
+                    }
+
                     in 247..250 -> {
                         val b1 = readUint8(pos++)
                         stack.add(((b0 - 247) * 256 + b1 + 108).toFloat())
                     }
+
                     in 251..254 -> {
                         val b1 = readUint8(pos++)
                         stack.add((-(b0 - 251) * 256 - b1 - 108).toFloat())
                     }
+
                     28 -> {
                         stack.add(readInt16(pos).toFloat())
                         pos += 2
                     }
+
                     255 -> {
                         val fixed = readUint32(pos)
                         stack.add(fixed.toFloat() / 65536.0f)
                         pos += 4
                     }
+
                     1, 3, 18, 23 -> {
                         // hstem, vstem, hstemhm, vstemhm
                         stemCount += stack.size / 2
                         stack.clear()
                     }
+
                     19, 20 -> {
                         // hintmask, cntrmask
                         stemCount += stack.size / 2
@@ -299,6 +333,7 @@ internal class CffParser(
                         val maskBytes = (stemCount + 7) / 8
                         pos += maskBytes
                     }
+
                     4 -> {
                         // vmoveto
                         if (stack.isNotEmpty()) {
@@ -309,6 +344,7 @@ internal class CffParser(
                             stack.clear()
                         }
                     }
+
                     22 -> {
                         // hmoveto
                         if (stack.isNotEmpty()) {
@@ -319,6 +355,7 @@ internal class CffParser(
                             stack.clear()
                         }
                     }
+
                     21 -> {
                         // rmoveto
                         if (stack.size >= 2) {
@@ -330,6 +367,7 @@ internal class CffParser(
                             stack.clear()
                         }
                     }
+
                     5 -> {
                         // rlineto
                         var i = 0
@@ -342,6 +380,7 @@ internal class CffParser(
                         }
                         stack.clear()
                     }
+
                     6 -> {
                         // hlineto
                         var isHoriz = true
@@ -353,6 +392,7 @@ internal class CffParser(
                         }
                         stack.clear()
                     }
+
                     7 -> {
                         // vlineto
                         var isVert = true
@@ -364,6 +404,7 @@ internal class CffParser(
                         }
                         stack.clear()
                     }
+
                     8 -> {
                         // rrcurveto
                         var i = 0
@@ -382,6 +423,7 @@ internal class CffParser(
                         }
                         stack.clear()
                     }
+
                     10 -> {
                         // callsubr
                         if (stack.isNotEmpty() && localSubrs != null) {
@@ -391,15 +433,18 @@ internal class CffParser(
                             }
                         }
                     }
+
                     11 -> {
                         // return
                         return
                     }
+
                     14 -> {
                         // endchar
                         builder.close()
                         return
                     }
+
                     29 -> {
                         // callgsubr
                         if (stack.isNotEmpty() && globalSubrs != null) {
@@ -409,6 +454,7 @@ internal class CffParser(
                             }
                         }
                     }
+
                     else -> {
                         // Skip unhandled operator
                     }

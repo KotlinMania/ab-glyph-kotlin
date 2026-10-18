@@ -4,7 +4,6 @@ package io.github.kotlinmania.abglyph
 import kotlin.test.Test
 
 class RasterizerIssuesTest {
-
     /**
      * Index oob panic rasterizing "Gauntl" using Bitter-Regular.otf
      */

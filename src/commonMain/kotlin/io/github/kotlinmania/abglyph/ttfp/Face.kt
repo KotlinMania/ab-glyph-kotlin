@@ -2,7 +2,6 @@ package io.github.kotlinmania.abglyph.ttfp
 
 import io.github.kotlinmania.abglyph.CodepointIdIter
 import io.github.kotlinmania.abglyph.GlyphId
-import io.github.kotlinmania.abglyph.Outline
 import io.github.kotlinmania.abglyph.OutlineCurve
 import io.github.kotlinmania.abglyph.Point
 import io.github.kotlinmania.abglyph.Rect
@@ -65,13 +64,12 @@ internal class Face private constructor(
     }
 
     companion object {
-        fun parse(data: ByteArray, index: Int = 0): Face? {
-            return try {
+        fun parse(data: ByteArray, index: Int = 0): Face? =
+            try {
                 Face(data, index)
             } catch (e: Exception) {
                 null
             }
-        }
     }
 
     private fun readUint8(pos: Int): Int = data[pos].toInt() and 0xFF
@@ -85,16 +83,20 @@ internal class Face private constructor(
         ((data[pos].toInt() shl 8) or (data[pos + 1].toInt() and 0xFF)).toShort().toInt()
 
     private fun readUint32(pos: Int): Long =
-        (((data[pos].toLong() and 0xFF) shl 24) or
-            ((data[pos + 1].toLong() and 0xFF) shl 16) or
-            ((data[pos + 2].toLong() and 0xFF) shl 8) or
-            (data[pos + 3].toLong() and 0xFF))
+        (
+            ((data[pos].toLong() and 0xFF) shl 24) or
+                ((data[pos + 1].toLong() and 0xFF) shl 16) or
+                ((data[pos + 2].toLong() and 0xFF) shl 8) or
+                (data[pos + 3].toLong() and 0xFF)
+        )
 
     private fun readInt32(pos: Int): Int =
-        (((data[pos].toInt() and 0xFF) shl 24) or
-            ((data[pos + 1].toInt() and 0xFF) shl 16) or
-            ((data[pos + 2].toInt() and 0xFF) shl 8) or
-            (data[pos + 3].toInt() and 0xFF))
+        (
+            ((data[pos].toInt() and 0xFF) shl 24) or
+                ((data[pos + 1].toInt() and 0xFF) shl 16) or
+                ((data[pos + 2].toInt() and 0xFF) shl 8) or
+                (data[pos + 3].toInt() and 0xFF)
+        )
 
     private fun readTag(pos: Int): String =
         data.decodeToString(pos, pos + 4)
@@ -115,7 +117,7 @@ internal class Face private constructor(
 
         val numTables = readUint16(headerOffset + 4)
         var dirOffset = headerOffset + 12
-        for (i in 0 until numTables) {
+        repeat(numTables) {
             val tag = readTag(dirOffset)
             val offset = readUint32(dirOffset + 8).toInt()
             val length = readUint32(dirOffset + 12).toInt()
@@ -209,13 +211,14 @@ internal class Face private constructor(
 
                 if (start == 0xFFFF) break
                 for (c in start..end) {
-                    val gid = if (rangeOffset == 0) {
-                        (c + idDelta) and 0xFFFF
-                    } else {
-                        val glyphArrayOffset = idRangeOffset + s * 2 + rangeOffset + (c - start) * 2
-                        val g = readUint16(glyphArrayOffset)
-                        if (g != 0) (g + idDelta) and 0xFFFF else 0
-                    }
+                    val gid =
+                        if (rangeOffset == 0) {
+                            (c + idDelta) and 0xFFFF
+                        } else {
+                            val glyphArrayOffset = idRangeOffset + s * 2 + rangeOffset + (c - start) * 2
+                            val g = readUint16(glyphArrayOffset)
+                            if (g != 0) (g + idDelta) and 0xFFFF else 0
+                        }
                     if (gid > 0) {
                         val ch = c.toChar()
                         cmapTable[ch] = gid
@@ -229,7 +232,7 @@ internal class Face private constructor(
             val numGroups = readUint32(chosenOffset + 12).toInt()
             val seenGlyphs = mutableSetOf<Int>()
             var grpOffset = chosenOffset + 16
-            for (g in 0 until numGroups) {
+            repeat(numGroups) {
                 val startChar = readUint32(grpOffset).toInt()
                 val endChar = readUint32(grpOffset + 4).toInt()
                 val startGid = readUint32(grpOffset + 8).toInt()
@@ -253,14 +256,14 @@ internal class Face private constructor(
         if (kernOffset < 0) return
         val nTables = readUint16(kernOffset + 2)
         var subtableOffset = kernOffset + 4
-        for (t in 0 until nTables) {
+        repeat(nTables) {
             val version = readUint16(subtableOffset)
             val length = readUint16(subtableOffset + 2)
             val coverage = readUint16(subtableOffset + 4)
             if (version == 0 && (coverage and 0x0001) != 0 && (coverage shr 8) == 0) {
                 val nPairs = readUint16(subtableOffset + 6)
                 var pairOffset = subtableOffset + 14
-                for (p in 0 until nPairs) {
+                repeat(nPairs) {
                     val left = readUint16(pairOffset)
                     val right = readUint16(pairOffset + 2)
                     val value = readInt16(pairOffset + 4).toFloat()
@@ -268,7 +271,7 @@ internal class Face private constructor(
                     val key = (left.toLong() shl 16) or right.toLong()
                     kernTable[key] = value
                 }
-                break
+                return
             }
             subtableOffset += length
         }
@@ -279,7 +282,7 @@ internal class Face private constructor(
         val axesCount = readUint16(fvarOffset + 8)
         var axisOffset = fvarOffset + readUint16(fvarOffset + 4)
         val axisSize = readUint16(fvarOffset + 10)
-        for (i in 0 until axesCount) {
+        repeat(axesCount) {
             val tagBytes = data.copyOfRange(axisOffset, axisOffset + 4)
             val minVal = readInt32(axisOffset + 4).toFloat() / 65536.0f
             val defVal = readInt32(axisOffset + 8).toFloat() / 65536.0f
@@ -392,7 +395,7 @@ internal class Face private constructor(
                 flags[fIdx++] = flag
                 if ((flag and 0x08) != 0) {
                     val rep = readUint8(pos++)
-                    for (r in 0 until rep) {
+                    repeat(rep) {
                         if (fIdx < nPts) flags[fIdx++] = flag
                     }
                 }
@@ -532,7 +535,6 @@ internal class Face private constructor(
         builder: OutlineCurveBuilder,
     ): Rect? {
         var pos = startPos
-        val compositeCurves = mutableListOf<OutlineCurve>()
         var minX = xMin.toFloat()
         var minY = yMin.toFloat()
         var maxX = xMax.toFloat()
@@ -565,7 +567,8 @@ internal class Face private constructor(
             var d = 1.0f
             if ((flags and 0x0008) != 0) { // WE_HAVE_A_SCALE
                 val s = readInt16(pos).toFloat() / 16384.0f
-                a = s; d = s
+                a = s
+                d = s
                 pos += 2
             } else if ((flags and 0x0040) != 0) { // WE_HAVE_AN_X_AND_Y_SCALE
                 a = readInt16(pos).toFloat() / 16384.0f
@@ -598,6 +601,7 @@ internal class Face private constructor(
                             minY = min(minY, min(p0.y, p1.y))
                             maxY = max(maxY, max(p0.y, p1.y))
                         }
+
                         is OutlineCurve.Quad -> {
                             val p0 = transform(curve.p0)
                             val p1 = transform(curve.p1)
@@ -610,6 +614,7 @@ internal class Face private constructor(
                             minY = min(minY, min(p0.y, min(p1.y, p2.y)))
                             maxY = max(maxY, max(p0.y, max(p1.y, p2.y)))
                         }
+
                         is OutlineCurve.Cubic -> {
                             val p0 = transform(curve.p0)
                             val p1 = transform(curve.p1)

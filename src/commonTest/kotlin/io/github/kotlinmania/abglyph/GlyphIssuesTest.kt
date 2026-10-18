@@ -7,7 +7,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 class GlyphIssuesTest {
-
     /**
      * https://github.com/alexheretic/ab-glyph/issues/29
      */

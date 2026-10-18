@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class RenderReferenceTest {
-
     @Test
     fun referenceDrawTtfW() {
         val r = rasterizeTtfW()

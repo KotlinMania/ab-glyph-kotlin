@@ -8,7 +8,6 @@ package io.github.kotlinmania.abglyph
 class FontArc(
     private val inner: Font,
 ) : Font by inner {
-
     companion object {
         fun new(font: Font): FontArc = FontArc(font)
 

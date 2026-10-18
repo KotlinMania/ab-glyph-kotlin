@@ -12,7 +12,6 @@ data class PxScale(
     val x: Float,
     val y: Float,
 ) : Comparable<PxScale> {
-
     companion object {
         /**
          * Uniform scaling where x and y are the same.
@@ -50,44 +49,54 @@ data class PxScaleFactor(
  * A Font with an associated pixel scale.
  */
 interface ScaleFont<out F : Font> {
-    fun scale(): PxScale
-    fun font(): F
+    val scale: PxScale
+    val font: F
 
-    fun hScaleFactor(): Float = scale().x / font().heightUnscaled()
-    fun vScaleFactor(): Float = scale().y / font().heightUnscaled()
+    fun hScaleFactor(): Float = scale.x / font.heightUnscaled()
+
+    fun vScaleFactor(): Float = scale.y / font.heightUnscaled()
+
     fun scaleFactor(): PxScaleFactor = PxScaleFactor(hScaleFactor(), vScaleFactor())
 
-    fun ascent(): Float = vScaleFactor() * font().ascentUnscaled()
-    fun descent(): Float = vScaleFactor() * font().descentUnscaled()
-    fun height(): Float = scale().y
-    fun lineGap(): Float = vScaleFactor() * font().lineGapUnscaled()
+    fun ascent(): Float = vScaleFactor() * font.ascentUnscaled()
 
-    fun glyphId(c: Char): GlyphId = font().glyphId(c)
-    fun scaledGlyph(c: Char): Glyph = font().glyphId(c).withScale(scale())
+    fun descent(): Float = vScaleFactor() * font.descentUnscaled()
 
-    fun hAdvance(id: GlyphId): Float = hScaleFactor() * font().hAdvanceUnscaled(id)
-    fun hSideBearing(id: GlyphId): Float = hScaleFactor() * font().hSideBearingUnscaled(id)
-    fun vAdvance(id: GlyphId): Float = vScaleFactor() * font().vAdvanceUnscaled(id)
-    fun vSideBearing(id: GlyphId): Float = vScaleFactor() * font().vSideBearingUnscaled(id)
-    fun kern(first: GlyphId, second: GlyphId): Float = hScaleFactor() * font().kernUnscaled(first, second)
+    fun height(): Float = scale.y
 
-    fun glyphBounds(glyph: Glyph): Rect = font().glyphBounds(glyph)
-    fun glyphCount(): Int = font().glyphCount()
-    fun codepointIds(): CodepointIdIter = font().codepointIds()
-    fun outlineGlyph(glyph: Glyph): OutlinedGlyph? = font().outlineGlyph(glyph)
+    fun lineGap(): Float = vScaleFactor() * font.lineGapUnscaled()
+
+    fun glyphId(c: Char): GlyphId = font.glyphId(c)
+
+    fun scaledGlyph(c: Char): Glyph = font.glyphId(c).withScale(scale)
+
+    fun hAdvance(id: GlyphId): Float = hScaleFactor() * font.hAdvanceUnscaled(id)
+
+    fun hSideBearing(id: GlyphId): Float = hScaleFactor() * font.hSideBearingUnscaled(id)
+
+    fun vAdvance(id: GlyphId): Float = vScaleFactor() * font.vAdvanceUnscaled(id)
+
+    fun vSideBearing(id: GlyphId): Float = vScaleFactor() * font.vSideBearingUnscaled(id)
+
+    fun kern(first: GlyphId, second: GlyphId): Float = hScaleFactor() * font.kernUnscaled(first, second)
+
+    fun glyphBounds(glyph: Glyph): Rect = font.glyphBounds(glyph)
+
+    fun glyphCount(): Int = font.glyphCount()
+
+    fun codepointIds(): CodepointIdIter = font.codepointIds()
+
+    fun outlineGlyph(glyph: Glyph): OutlinedGlyph? = font.outlineGlyph(glyph)
 }
 
 /**
  * A Font and an associated pixel scale.
  */
 data class PxScaleFont<out F : Font>(
-    val font: F,
-    val scale: PxScale,
+    override val font: F,
+    override val scale: PxScale,
 ) : ScaleFont<F> {
-
     fun withScale(newScale: PxScale): PxScaleFont<F> = PxScaleFont(font, newScale)
-    fun withScale(newScale: Float): PxScaleFont<F> = PxScaleFont(font, PxScale.from(newScale))
 
-    override fun scale(): PxScale = scale
-    override fun font(): F = font
+    fun withScale(newScale: Float): PxScaleFont<F> = PxScaleFont(font, PxScale.from(newScale))
 }

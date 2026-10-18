@@ -13,6 +13,7 @@ data class Rect(
     val max: Point = Point(),
 ) {
     fun width(): Float = max.x - min.x
+
     fun height(): Float = max.y - min.y
 }
 
@@ -23,17 +24,29 @@ sealed class OutlineCurve {
     /**
      * Straight line from p0 to p1.
      */
-    data class Line(val p0: Point, val p1: Point) : OutlineCurve()
+    data class Line(
+        val p0: Point,
+        val p1: Point,
+    ) : OutlineCurve()
 
     /**
      * Quadratic Bezier curve from p0 to p2 using p1 as the control.
      */
-    data class Quad(val p0: Point, val p1: Point, val p2: Point) : OutlineCurve()
+    data class Quad(
+        val p0: Point,
+        val p1: Point,
+        val p2: Point,
+    ) : OutlineCurve()
 
     /**
      * Cubic Bezier curve from p0 to p3 using p1 as control at curve start and p2 at curve end.
      */
-    data class Cubic(val p0: Point, val p1: Point, val p2: Point, val p3: Point) : OutlineCurve()
+    data class Cubic(
+        val p0: Point,
+        val p1: Point,
+        val p2: Point,
+        val p3: Point,
+    ) : OutlineCurve()
 }
 
 /**
@@ -56,14 +69,16 @@ data class Outline(
         val yFract = position.y - yTrunc
 
         return Rect(
-            min = point(
-                floor(min.x * scaleFactor.horizontal + xFract) + xTrunc,
-                floor(min.y * -scaleFactor.vertical + yFract) + yTrunc,
-            ),
-            max = point(
-                ceil(max.x * scaleFactor.horizontal + xFract) + xTrunc,
-                ceil(max.y * -scaleFactor.vertical + yFract) + yTrunc,
-            ),
+            min =
+                point(
+                    floor(min.x * scaleFactor.horizontal + xFract) + xTrunc,
+                    floor(min.y * -scaleFactor.vertical + yFract) + yTrunc,
+                ),
+            max =
+                point(
+                    ceil(max.x * scaleFactor.horizontal + xFract) + xTrunc,
+                    ceil(max.y * -scaleFactor.vertical + yFract) + yTrunc,
+                ),
         )
     }
 }
@@ -110,6 +125,7 @@ class OutlinedGlyph(
                 is OutlineCurve.Line -> {
                     rasterizer.drawLine(scaleUp(curve.p0) + offset, scaleUp(curve.p1) + offset)
                 }
+
                 is OutlineCurve.Quad -> {
                     rasterizer.drawQuad(
                         scaleUp(curve.p0) + offset,
@@ -117,6 +133,7 @@ class OutlinedGlyph(
                         scaleUp(curve.p2) + offset,
                     )
                 }
+
                 is OutlineCurve.Cubic -> {
                     rasterizer.drawCubic(
                         scaleUp(curve.p0) + offset,

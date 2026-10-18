@@ -61,11 +61,12 @@ class Rasterizer(
         if (abs(p0.y - p1.y) <= 1e-7f) {
             return
         }
-        val (dir, startP, endP) = if (p0.y < p1.y) {
-            Triple(1.0f, p0, p1)
-        } else {
-            Triple(-1.0f, p1, p0)
-        }
+        val (dir, startP, endP) =
+            if (p0.y < p1.y) {
+                Triple(1.0f, p0, p1)
+            } else {
+                Triple(-1.0f, p1, p0)
+            }
         val dxdy = (endP.x - startP.x) / (endP.y - startP.y)
         var x = startP.x
         val y0 = if (startP.y < 0.0f) 0 else startP.y.toInt()
@@ -151,7 +152,7 @@ class Rasterizer(
         var p = p0
         val nrecip = 1.0f / n.toFloat()
         var t = 0.0f
-        for (i in 0 until n - 1) {
+        repeat(n - 1) {
             t += nrecip
             val pn = lerp(t, lerp(t, p0, p1), lerp(t, p1, p2))
             drawLine(p, pn)

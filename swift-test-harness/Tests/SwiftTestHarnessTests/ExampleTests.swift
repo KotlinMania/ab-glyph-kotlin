@@ -4,9 +4,11 @@ import AbGlyph
 
 @Suite("AbGlyph Swift Export Tests")
 struct AbGlyphExportTests {
-    @Test("AbGlyph swift module imported cleanly")
+    @Test("AbGlyph swift module imported cleanly and point instantiated")
     func testSwiftModuleLoads() throws {
-        #expect(Bool(true), "AbGlyph swift module imported cleanly")
+        let p = point(x: 3.0, y: 4.0)
+        #expect(p.x == 3.0)
+        #expect(p.y == 4.0)
     }
 }
 #elseif canImport(XCTest)
@@ -15,7 +17,9 @@ import AbGlyph
 
 final class AbGlyphExportTests: XCTestCase {
     func testSwiftModuleLoads() throws {
-        XCTAssertTrue(true, "AbGlyph swift module imported cleanly")
+        let p = point(x: 3.0, y: 4.0)
+        XCTAssertEqual(p.x, 3.0)
+        XCTAssertEqual(p.y, 4.0)
     }
 }
 #endif

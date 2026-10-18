@@ -10,7 +10,6 @@ data class Point(
     val x: Float = 0.0f,
     val y: Float = 0.0f,
 ) : Comparable<Point> {
-
     /**
      * Calculates the Euclidean distance to another point.
      */
