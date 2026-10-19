@@ -35,7 +35,7 @@ All crates maintained with [latest stable rust](https://gist.github.com/alexhere
 
 ```kotlin
 dependencies {
-    implementation("io.github.kotlinmania:ab-glyph-kotlin:0.1.0")
+    implementation("io.github.kotlinmania:ab-glyph-kotlin:0.1.2")
 }
 ```
 
